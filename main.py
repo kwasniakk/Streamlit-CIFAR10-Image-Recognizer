@@ -27,7 +27,7 @@ def download_model():
     gdd = googleDriveFileDownloader()
     gdd.downloadFile("https://drive.google.com/file/d/1vmPuSOOTfthkIVoZipz9p4l1J_8RGQKq/view?usp=sharing")
 
-#download_model()
+download_model()
 
 @st.cache
 def load_model():
