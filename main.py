@@ -7,6 +7,12 @@ import torch.nn.functional as F
 from PIL import Image, UnidentifiedImageError
 import torch
 from googleDriveFileDownloader import googleDriveFileDownloader
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-download", "--download", help="Whether you wish to download the model or not", type=bool, default=True)
+args = parser.parse_args()
+
 st.title("Example")
 st.write("""
 # Upload your image!
@@ -26,12 +32,13 @@ transform = transforms.Compose([
 def download_model():
     gdd = googleDriveFileDownloader()
     gdd.downloadFile("https://drive.google.com/file/d/1vmPuSOOTfthkIVoZipz9p4l1J_8RGQKq/view?usp=sharing")
-
-download_model()
+if args.download == True:
+    download_model()
 
 @st.cache
 def load_model():
     model = Model.load_from_checkpoint(checkpoint_path = "resnet.ckpt")
+    model.eval()
     return model
 
 classifier = load_model()
@@ -84,9 +91,10 @@ def wrap():
     try:
         img = load_image(upload_type)
         st.image(img)
-        prediction, prob = predict(classifier, img)
-        st.write("Predicted label: ", classes[prediction.item()])
-        st.write(f"Model is {(torch.max(prob)*100):.3f} % sure that the label is correct")
+        if img != blank:
+            prediction, prob = predict(classifier, img)
+            st.write("Predicted label: ", classes[prediction.item()])
+            st.write(f"Model is {(torch.max(prob)*100):.3f} % sure that the label is correct")
     except (UnboundLocalError, UnidentifiedImageError):
         st.write("There was a problem loading the image, please try again")
         st.image(wrong)
